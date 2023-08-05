@@ -148,6 +148,11 @@ public:
 				i2++;
 			}
 		}
+		while(i2 < s.size) {
+			set.push_back(s.set.at(i2));
+			size++;
+        	i2++;
+		}
 		return size;
 	}
 
@@ -172,66 +177,49 @@ int search(vector<int> a, int data) {
 
 int main() {
 	int cmd, a, b;
-	vector<int> indexes;
 	vector<Set> sets;
 	while(cin >> cmd) {
 		if(cmd == 6 || cmd == 9) {
 			cin >> a;
-			int c = search(indexes, a);
-			if(c == -1) {
-				indexes.push_back(a);
+			if(a >= sets.size()) {
 				sets.push_back(Set());
-				c = indexes.size()-1;
 			}
 			if(cmd == 6)
-				cout << sets.at(c).Size();
+				cout << sets.at(a).Size();
 			else
-				sets.at(c).Print();
+				sets.at(a).Print();
 		} else {
 			cin >> a >> b;
 			if(cmd <= 3) {
-				int c = search(indexes, a);
 				if(cmd == 1) {
-					if(c == -1) {
-						indexes.push_back(a);
+					if(a >= sets.size()) {
 						sets.push_back(Set());
-						c = indexes.size()-1;
 					}
-					cout << sets.at(c).Insert(b);
-				} else if(cmd == 2) {
-					if(c == -1) {
-						cout << c;
-					} else {
-						cout << sets.at(c).Delete(b);
-					}
+					cout << sets.at(a).Insert(b);
 				} else {
-					if(c == -1) {
-						cout << c;
+					if(a >= sets.size()) {
+						cout << -1;
+					} else if (cmd == 2) {
+						cout << sets.at(a).Delete(b);
 					} else {
-						cout << sets.at(c).BelongsTo(b);
+						cout << sets.at(a).BelongsTo(b);
 					}
 				}
 			} else {
-				int c = search(indexes, a);
-				int d = search(indexes, b);
-				if(c == -1) {
-					indexes.push_back(a);
+				if(a >= sets.size()) {
 					sets.push_back(Set());
-					c = indexes.size()-1;
 				}
-				if(d == -1) {
-					indexes.push_back(b);
+				if(b >= sets.size()) {
 					sets.push_back(Set());
-					d = indexes.size()-1;
 				}
 				if(cmd == 4)
-					cout << sets.at(c).Union(sets.at(d));
+					cout << sets.at(a).Union(sets.at(b));
 				else if(cmd == 5)
-					cout << sets.at(c).Intersection(sets.at(d));
+					cout << sets.at(a).Intersection(sets.at(b));
 				else if(cmd == 7)
-					cout << sets.at(c).Difference(sets.at(d));
-				else
-					cout << sets.at(c).SymmetricDifference(sets.at(d));
+					cout << sets.at(a).Difference(sets.at(b));
+				else		
+					cout << sets.at(a).SymmetricDifference(sets.at(b));
 			}
 		}
 		cout << endl;
