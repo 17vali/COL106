@@ -72,20 +72,20 @@ public:
 	int Union(Set s) { 
 		int i1 = 0, i2 = 0;
 		while(i1<size && i2<s.size) {
-			if(set.at(i1) == s.set.at(i2)) {
+			if(set[i1] == s.set[i2]) {
 				i1++;
 				i2++;
-			} else if(set.at(i1) < s.set.at(i2)) {
+			} else if(set[i1] < s.set[i2]) {
 				i1++;
 			} else {
-				set.insert(set.begin()+i1, s.set.at(i2));
+				set.insert(set.begin()+i1, s.set[i2]);
 				size++;
 				i1++;
 				i2++;
 			}
 		}
 		while(i2 < s.size) {
-			set.push_back(s.set.at(i2));
+			set.push_back(s.set[i2]);
 			size++;
         	i2++;
 		}
@@ -96,10 +96,10 @@ public:
 	int Intersection(Set s) {
 		int i1 = 0, i2 = 0;
 		while(i1<size && i2<s.size) {
-			if(set.at(i1) == s.set.at(i2)) {
+			if(set[i1] == s.set[i2]) {
 				i1++;
 				i2++;
-			} else if(set.at(i1) < s.set.at(i2)) {
+			} else if(set[i1] < s.set[i2]) {
 				set.erase(set.begin()+i1);
 				size--;
 			} else {
@@ -112,18 +112,18 @@ public:
 		return size;
 	}
 
-	int Size() {
+	/*int Size() {
 		return size;
-	}
+	}*/
 
 	int Difference(Set s) {
 		int i1 = 0, i2 = 0;
 		while(i1<size && i2<s.size) {
-			if(set.at(i1) == s.set.at(i2)) {
+			if(set[i1] == s.set[i2]) {
 				set.erase(set.begin()+i1);
 				i2++;
 				size--;
-			} else if(set.at(i1) < s.set.at(i2)) {
+			} else if(set[i1] < s.set[i2]) {
 				i1++;
 			} else {
 				i2++;
@@ -135,21 +135,21 @@ public:
 	int SymmetricDifference(Set s) {
 		int i1 = 0, i2 = 0;
 		while(i1<size && i2<s.size) {
-			if(set.at(i1) == s.set.at(i2)) {
+			if(set[i1] == s.set[i2]) {
 				set.erase(set.begin()+i1);
 				i2++;
 				size--;
-			} else if(set.at(i1) < s.set.at(i2)) {
+			} else if(set[i1] < s.set[i2]) {
 				i1++;
 			} else {
-				set.insert(set.begin()+i1, s.set.at(i2));
+				set.insert(set.begin()+i1, s.set[i2]);
 				size++;
 				i1++;
 				i2++;
 			}
 		}
 		while(i2 < s.size) {
-			set.push_back(s.set.at(i2));
+			set.push_back(s.set[i2]);
 			size++;
         	i2++;
 		}
@@ -161,19 +161,10 @@ public:
 			if(i!=0) {
 				cout << ",";
 			}
-			cout << set.at(i);
+			cout << set[i];
 		}
 	}
 };
-
-int search(vector<int> a, int data) {
-	for(int i = 0; i<a.size(); i++) {
-		if(a.at(i) == data) {
-			return i;
-		}
-	}
-	return -1;
-}
 
 int main() {
 	int cmd, a, b;
@@ -181,45 +172,59 @@ int main() {
 	while(cin >> cmd) {
 		if(cmd == 6 || cmd == 9) {
 			cin >> a;
-			if(a >= sets.size()) {
-				sets.push_back(Set());
+			if(cmd == 6) {
+				if(a == sets.size()) {
+					sets.push_back(Set());
+				}
+				cout << sets[a].size;
 			}
-			if(cmd == 6)
-				cout << sets.at(a).Size();
-			else
-				sets.at(a).Print();
+			else {
+				if(a < sets.size()) {
+					sets[a].Print();
+				}
+			}
 		} else {
 			cin >> a >> b;
 			if(cmd <= 3) {
 				if(cmd == 1) {
-					if(a >= sets.size()) {
+					if(a == sets.size()) {
 						sets.push_back(Set());
 					}
-					cout << sets.at(a).Insert(b);
+					cout << sets[a].Insert(b);
 				} else {
 					if(a >= sets.size()) {
 						cout << -1;
 					} else if (cmd == 2) {
-						cout << sets.at(a).Delete(b);
+						cout << sets[a].Delete(b);
 					} else {
-						cout << sets.at(a).BelongsTo(b);
+						cout << sets[a].BelongsTo(b);
 					}
 				}
 			} else {
-				if(a >= sets.size()) {
+				if(a<b) {
+					if(a == sets.size()) {
 					sets.push_back(Set());
+					}
+					if(b == sets.size()) {
+						sets.push_back(Set());
+					}
+				} else {
+					if(b == sets.size()) {
+						sets.push_back(Set());
+					}
+					if(a == sets.size()) {
+						sets.push_back(Set());
+					}
 				}
-				if(b >= sets.size()) {
-					sets.push_back(Set());
-				}
+				
 				if(cmd == 4)
-					cout << sets.at(a).Union(sets.at(b));
+					cout << sets[a].Union(sets[b]);
 				else if(cmd == 5)
-					cout << sets.at(a).Intersection(sets.at(b));
+					cout << sets[a].Intersection(sets[b]);
 				else if(cmd == 7)
-					cout << sets.at(a).Difference(sets.at(b));
+					cout << sets[a].Difference(sets[b]);
 				else		
-					cout << sets.at(a).SymmetricDifference(sets.at(b));
+					cout << sets[a].SymmetricDifference(sets[b]);
 			}
 		}
 		cout << endl;
