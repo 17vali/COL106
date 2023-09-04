@@ -16,7 +16,7 @@ public:
     int hash(std::string id) override;
     
     CubicProbing() {
-        bankStorage1d.resize(100000);
+        bankStorage1d.resize(100003);
         size = 0;
     }
         

@@ -16,7 +16,7 @@ public:
     int hash(std::string id) override;
 
     QuadraticProbing() {
-        bankStorage1d.resize(100000);
+        bankStorage1d.resize(100003);
         size = 0;
     }
         
