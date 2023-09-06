@@ -16,12 +16,40 @@ public:
     int hash(std::string id) override;
 
     LinearProbing() {
-        bankStorage1d.resize(100003);
-        size = 0;
+        size = 0, used = 0, capacity = 7, threshold = static_cast<int>(capacity * loadFactor);
+        bankStorage1d.resize(7);
+    }
+
+    void quickSort(std::vector<int>& arr, int left, int right) {
+        int i = left, j = right;
+        int tmp;
+        int pivot = arr[(left + right) / 2];
+        
+        while (i <= j) {
+            while (arr[i] > pivot)
+                i++;
+            while (arr[j] < pivot)
+                j--;
+            if (i <= j) {
+                tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+                
+                i++;
+                j--;
+            }
+        };
+        
+        if (left < j)
+            quickSort(arr, left, j);
+        if (i < right)
+            quickSort(arr, i, right);
     }
     
 private:
-    int size;
+    int size, threshold, capacity, used;
+    double loadFactor = 0.65;
+    void resize();
 };
 
 #endif // LINEARPROBING_H

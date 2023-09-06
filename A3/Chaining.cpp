@@ -5,68 +5,20 @@ void Chaining::createAccount(std::string id, int count) {
     Account* account = search(id, index);
     if (account == nullptr) {
         bankStorage2d[index].push_back(Account{id, count});
-        size++;
+        if(++size > threshold) resize();
     }
 }
 
 std::vector<int> Chaining::getTopK(int k) {
     std::vector<int> values;
-    for(int i = 0; i < 100003; i++){
+    for(int i = 0; i < capacity; i++){
         for(Account& account : bankStorage2d[i]) {
             values.push_back(account.balance);
         }
     }
-    for(int i = 0; i < k; i++){
-        while(true) {
-            int smallest = i;
-            if (2*i+1<k && values[2*i+1] < values[smallest]) {
-                smallest = 2*i+1;
-            }
-            if (2*i+2<k && values[2*i+2] < values[smallest]) {
-                smallest = 2*i+2;
-            }
-            if (smallest == i) {
-                break;
-            }
-            int temp = values[i];
-            values[i] = values[smallest];
-            values[smallest] = temp;
-            i = smallest;
-        }
-    }
-
-    for (int i = k; i < size; i++) {
-        if (values[0] > values[i])
-            continue;
-        else {
-            values[0] = values[i];
-            int j = 0;
-            while(true) {
-                int smallest = j;
-                if (2*j+1<k && values[2*j+1] < values[smallest]) {
-                    smallest = 2*j+1;
-                }
-                if (2*j+2<k && values[2*j+2] < values[smallest]) {
-                    smallest = 2*j+2;
-                }
-                if (smallest == j) {
-                    break;
-                }
-                int temp = values[j];
-                values[j] = values[smallest];
-                values[smallest] = temp;
-                j = smallest;
-            }
-        }
-    }
-
+    k = (k < size) ? k : size;
+    quickSort(values, 0, values.size()-1);
     values.resize(k);
-
-    for(int l=0, j=k-1; l<j; l++, j--){
-        int temp = values[l];
-        values[l] = values[j];
-        values[j] = temp;
-    }
     return values;
 }
 
@@ -83,6 +35,8 @@ void Chaining::addTransaction(std::string id, int count) {
     int index = hash(id);
     Account* account = search(id, index);
     if (account == nullptr) {
+        bankStorage2d[index].push_back(Account{id, count});
+        if(++size > threshold) resize();
         return;
     }
     account->balance += count;
@@ -105,6 +59,7 @@ bool Chaining::deleteAccount(std::string id) {
     size--;
     return true;
 }
+
 int Chaining::databaseSize() {
     return size;
 }
@@ -112,7 +67,7 @@ int Chaining::databaseSize() {
 int Chaining::hash(std::string id) {
     int hash_value = 0;
     for (char c : id) {
-        hash_value = (hash_value*31 + c - 'A' + 1) % 100003;
+        hash_value = (hash_value*31 + c) % capacity;
     }
     return hash_value;
 }
@@ -127,4 +82,18 @@ Account* Chaining::search(std::string id, int index) {
         }
     }
     return nullptr;
+}
+
+void Chaining::resize() {
+    capacity *= 2;
+    threshold = static_cast<int>(capacity * loadFactor);
+    std::vector<std::vector<Account>> temp(capacity);
+    for(int i = 0; i < bankStorage2d.size(); i++){
+        for(Account& account : bankStorage2d[i]) {
+            int index = hash(account.id);
+            temp[index].push_back(account);
+        }
+        bankStorage2d[i].clear();
+    }
+    bankStorage2d = temp;
 }

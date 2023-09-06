@@ -2,125 +2,142 @@
 
 void CubicProbing::createAccount(std::string id, int count) {
     int index = hash(id);
-    for(int i = index, n=-1; ; i = (i+3*(++n)*(1+n)+1)%100003){
+    for(int i = index, d = 1, n = -1; ; i = ((index+d*d*d)%200003), d++){
+        if(bankStorage1d[i].id == "DELETED"){
+            if(n == -1) n = i;
+            continue;
+        }
         if(bankStorage1d[i].id == ""){
-            bankStorage1d[i].id = id;
-            bankStorage1d[i].balance = count;
+            if(n == -1) {
+                bankStorage1d[i].id = id;
+                bankStorage1d[i].balance = count;
+            } else {
+                bankStorage1d[n].id = id;
+                bankStorage1d[n].balance = count;
+            }
             size++;
-            break;
+            return;
+        }
+        if(bankStorage1d[i].id == id){
+            if (n != -1) {
+                bankStorage1d[n].id = id;
+                bankStorage1d[n].balance = count;
+                bankStorage1d[i].id = "DELETED";
+                bankStorage1d[i].balance = 0;
+            } else {
+                bankStorage1d[i].balance = count;
+            }
+            return;
         }
     }
 }
 
 std::vector<int> CubicProbing::getTopK(int k) {
     std::vector<int> values;
-    for(int i = 0; i < 100003; i++){
-        if(bankStorage1d[i].id != ""){
+    for(int i = 0; i < 200003; i++){
+        if(bankStorage1d[i].id != "" && bankStorage1d[i].id != "DELETED"){
             values.push_back(bankStorage1d[i].balance);
         }
     }
-    for(int i = 0; i < k; i++){
-        while(true) {
-            int smallest = i;
-            if (2*i+1<k && values[2*i+1] < values[smallest]) {
-                smallest = 2*i+1;
-            }
-            if (2*i+2<k && values[2*i+2] < values[smallest]) {
-                smallest = 2*i+2;
-            }
-            if (smallest == i) {
-                break;
-            }
-            int temp = values[i];
-            values[i] = values[smallest];
-            values[smallest] = temp;
-            i = smallest;
-        }
-    }
-
-    for (int i = k; i < size; i++) {
-        if (values[0] > values[i])
-            continue;
-        else {
-            values[0] = values[i];
-            int j = 0;
-            while(true) {
-                int smallest = j;
-                if (2*j+1<k && values[2*j+1] < values[smallest]) {
-                    smallest = 2*j+1;
-                }
-                if (2*j+2<k && values[2*j+2] < values[smallest]) {
-                    smallest = 2*j+2;
-                }
-                if (smallest == j) {
-                    break;
-                }
-                int temp = values[j];
-                values[j] = values[smallest];
-                values[smallest] = temp;
-                j = smallest;
-            }
-        }
-    }
-
+    k = (k < size) ? k : size;
+    quickSort(values, 0, values.size()-1);
     values.resize(k);
-
-    for(int l=0, j=k-1; l<j; l++, j--){
-        int temp = values[l];
-        values[l] = values[j];
-        values[j] = temp;
-    }
     return values;
 }
 
 int CubicProbing::getBalance(std::string id) {
     int index = hash(id);
-    for(int i = index, n=-1; ; i = (i+3*(++n)*(1+n)+1)%100003){
-        if(bankStorage1d[i].id == id){
-            return bankStorage1d[i].balance;
+    for(int i = index, d = 1, n = -1; ; i = ((index+d*d*d)%200003), d++){
+        if(bankStorage1d[i].id == "DELETED"){
+            if(n == -1) n = i;
+            continue;
         }
         if(bankStorage1d[i].id == ""){
             return -1;
+        }
+        if(bankStorage1d[i].id == id){
+            if (n != -1) {
+                bankStorage1d[n].id = bankStorage1d[i].id;
+                bankStorage1d[n].balance = bankStorage1d[i].balance;
+                bankStorage1d[i].id = "DELETED";
+                bankStorage1d[i].balance = 0;
+                return bankStorage1d[n].balance;
+            } else {
+                return bankStorage1d[i].balance;
+            }
         }
     }
 }
 
 void CubicProbing::addTransaction(std::string id, int count) {
     int index = hash(id);
-    for(int i = index, n=-1; ; i = (i+3*(++n)*(1+n)+1)%100003){
-        if(bankStorage1d[i].id == id){
-            bankStorage1d[i].balance += count;
-            break;
+    for(int i = index, d = 1, n = -1; ; i = ((index+d*d*d)%200003), d++){
+        if(bankStorage1d[i].id == "DELETED"){
+            if(n == -1) n = i;
+            continue;
         }
         if(bankStorage1d[i].id == ""){
-            break;
+            if(n == -1) {
+                bankStorage1d[i].id = id;
+                bankStorage1d[i].balance = count;
+            } else {
+                bankStorage1d[n].id = id;
+                bankStorage1d[n].balance = count;
+            }
+            size++;
+            return;
+        }
+        if(bankStorage1d[i].id == id){
+            if (n != -1) {
+                bankStorage1d[n].id = id;
+                bankStorage1d[n].balance = bankStorage1d[i].balance + count;
+                bankStorage1d[i].id = "DELETED";
+                bankStorage1d[i].balance = 0;
+            } else {
+                bankStorage1d[i].balance += count;
+            }
+            return;
         }
     }
 }
 
 bool CubicProbing::doesExist(std::string id) {
     int index = hash(id);
-    for(int i = index, n=-1; ; i = (i+3*(++n)*(1+n)+1)%100003){
-        if(bankStorage1d[i].id == id){
-            return true;
+    for(int i = index, d = 1, n = -1; ; i = ((index+d*d*d)%200003), d++){
+        if(bankStorage1d[i].id == "DELETED"){
+            if(n == -1) n = i;
+            continue;
         }
         if(bankStorage1d[i].id == ""){
             return false;
+        }
+        if(bankStorage1d[i].id == id){
+
+            if(n != -1) {
+                bankStorage1d[n].id = bankStorage1d[i].id;
+                bankStorage1d[n].balance = bankStorage1d[i].balance;
+                bankStorage1d[i].id = "DELETED";
+                bankStorage1d[i].balance = 0;
+            }
+            return true;
         }
     }
 }
 
 bool CubicProbing::deleteAccount(std::string id) {
     int index = hash(id);
-    for(int i = index, n=-1; ; i = (i+3*(++n)*(1+n)+1)%100003){
-        if(bankStorage1d[i].id == id){
-            bankStorage1d[i].id = "";
-            bankStorage1d[i].balance = 0;
-            size--;
-            return true;
+    for(int i = index, d = 1, n = -1; ; i = ((index+d*d*d)%200003), d++){
+        if(bankStorage1d[i].id == "DELETED"){
+            continue;
         }
         if(bankStorage1d[i].id == ""){
             return false;
+        }
+        if(bankStorage1d[i].id == id){
+            bankStorage1d[i].id = "DELETED";
+            bankStorage1d[i].balance = 0;
+            size--;
+            return true;
         }
     }
 }
@@ -131,7 +148,7 @@ int CubicProbing::databaseSize() {
 int CubicProbing::hash(std::string id) {
     int hash_value = 0;
     for (char c : id) {
-        hash_value = (hash_value*31 + c - 'A' + 1) % 100003;
+        hash_value = (hash_value*31 + c) % 200003;
     }
     return hash_value;
 }
