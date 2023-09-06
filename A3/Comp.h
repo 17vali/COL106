@@ -3,7 +3,6 @@
 
 #include "BaseClass.h"
 #include <iostream>
-#include <vector>
 
 class Comp : public BaseClass {
 public:
@@ -17,18 +16,12 @@ public:
     int hash(std::string id) override;
 
     Comp() {
-        bankStorage1d.resize(200003);
+        bankStorage1d.resize(172421);
         size = 0;
     }
-
-    int hash2(std::string id, int h) {
-        for (char c: id) {
-            h ^= c;
-            h *= 0x5bd1e995;
-            h ^= h >> 15;
-        }
-        return h%200003;
-    }
+    
+private:
+    int size;
 
     void quickSort(std::vector<int>& arr, int left, int right) {
         int i = left, j = right;
@@ -55,9 +48,6 @@ public:
         if (i < right)
             quickSort(arr, i, right);
     }
-    
-private:
-    int size;
 };
 
 #endif // COMP_H

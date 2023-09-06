@@ -16,9 +16,12 @@ public:
     int hash(std::string id) override;
     
     CubicProbing() {
-        bankStorage1d.resize(200003);
+        bankStorage1d.resize(172421);
         size = 0;
     }
+
+private:
+    int size;
 
     void quickSort(std::vector<int>& arr, int left, int right) {
         int i = left, j = right;
@@ -45,9 +48,6 @@ public:
         if (i < right)
             quickSort(arr, i, right);
     }
-        
-private:
-    int size;
 };
 
 #endif // CUBICPROBING_H

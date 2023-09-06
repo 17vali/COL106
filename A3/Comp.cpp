@@ -1,10 +1,9 @@
 #include "Comp.h"
 
 void Comp::createAccount(std::string id, int count) {
-    int h = hash(id);
-    int index = hash2(id, h);
-
-    for(int i = index, d = 1 , n = -1; ; i = (index+d*h)%200003, d++){
+    int index = hash(id);
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -36,7 +35,7 @@ void Comp::createAccount(std::string id, int count) {
 
 std::vector<int> Comp::getTopK(int k) {
     std::vector<int> values;
-    for(int i = 0; i < 200003; i++){
+    for(int i = 0; i < 172421; i++){
         if(bankStorage1d[i].id != "" && bankStorage1d[i].id != "DELETED"){
             values.push_back(bankStorage1d[i].balance);
         }
@@ -48,10 +47,9 @@ std::vector<int> Comp::getTopK(int k) {
 }
 
 int Comp::getBalance(std::string id) {
-    int h = hash(id);
-    int index = hash2(id, h);
-
-    for(int i = index, d = 1 , n = -1; ; i = (index+d*h)%200003, d++){
+    int index = hash(id);
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -74,10 +72,9 @@ int Comp::getBalance(std::string id) {
 }
 
 void Comp::addTransaction(std::string id, int count) {
-    int h = hash(id);
-    int index = hash2(id, h);
-
-    for(int i = index, d = 1 , n = -1; ; i = (index+d*h)%200003, d++){
+    int index = hash(id);
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -108,10 +105,9 @@ void Comp::addTransaction(std::string id, int count) {
 }
 
 bool Comp::doesExist(std::string id) {
-    int h = hash(id);
-    int index = hash2(id, h);
-
-    for(int i = index, d = 1 , n = -1; ; i = (index+d*h)%200003, d++){
+    int index = hash(id);
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -133,10 +129,9 @@ bool Comp::doesExist(std::string id) {
 }
 
 bool Comp::deleteAccount(std::string id) {
-    int h = hash(id);
-    int index = hash2(id, h);
-
-    for(int i = index, d = 1 , n = -1; ; i = (index+d*h)%200003, d++){
+    int index = hash(id);
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             continue;
         }
@@ -156,9 +151,15 @@ int Comp::databaseSize() {
 }
 
 int Comp::hash(std::string id) {
-    int hash_value = 0;
-    for (char c : id) {
-        hash_value = (hash_value*31 + c) % 200003;
+    int hash_value=0;
+    for(char c: id)
+    {
+        hash_value += c;
+        hash_value += (hash_value << 10);
+        hash_value ^= (hash_value >> 6);
     }
-    return hash_value;
+    hash_value += (hash_value << 3);
+    hash_value ^= (hash_value >> 11);
+    hash_value += (hash_value << 15);
+    return (hash_value & 0x7FFFFFFF) % 172421;
 }

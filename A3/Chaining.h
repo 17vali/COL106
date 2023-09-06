@@ -3,7 +3,6 @@
 
 #include "BaseClass.h"
 #include <iostream>
-#include <vector>
 
 class Chaining : public BaseClass {
 public:
@@ -17,9 +16,13 @@ public:
     int hash(std::string id) override;
 
     Chaining() {
-        size = 0, capacity = 3, threshold = static_cast<int>(capacity * loadFactor);
-        bankStorage2d.resize(3);
+        bankStorage2d.resize(172421);
+        size = 0;
     }
+
+private:
+    int size;
+    Account* search(std::string id, int index);
 
     void quickSort(std::vector<int>& arr, int left, int right) {
         int i = left, j = right;
@@ -46,12 +49,6 @@ public:
         if (i < right)
             quickSort(arr, i, right);
     }
-
-private:
-    int size, threshold, capacity;
-    double loadFactor = 0.75;
-    Account* search(std::string id, int index);
-    void resize();
 };
 
 #endif // CHAINING_H

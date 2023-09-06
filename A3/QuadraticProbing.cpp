@@ -1,9 +1,9 @@
 #include "QuadraticProbing.h"
 
 void QuadraticProbing::createAccount(std::string id, int count) {
-    if (used >= threshold) resize();
     int index = hash(id);
-    for(int i = index, d = 1, n = -1; ; i = (index+((d*d + d)>>1))%capacity, d++){
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -12,7 +12,6 @@ void QuadraticProbing::createAccount(std::string id, int count) {
             if(n == -1) {
                 bankStorage1d[i].id = id;
                 bankStorage1d[i].balance = count;
-                used++;
             } else {
                 bankStorage1d[n].id = id;
                 bankStorage1d[n].balance = count;
@@ -36,7 +35,7 @@ void QuadraticProbing::createAccount(std::string id, int count) {
 
 std::vector<int> QuadraticProbing::getTopK(int k) {
     std::vector<int> values;
-    for(int i = 0; i < capacity; i++){
+    for(int i = 0; i < 172421; i++){
         if(bankStorage1d[i].id != "" && bankStorage1d[i].id != "DELETED"){
             values.push_back(bankStorage1d[i].balance);
         }
@@ -49,7 +48,8 @@ std::vector<int> QuadraticProbing::getTopK(int k) {
 
 int QuadraticProbing::getBalance(std::string id) {
     int index = hash(id);
-    for(int i = index, d = 1, n = -1; ; i = (index+((d*d + d)>>1))%capacity, d++){
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -72,9 +72,9 @@ int QuadraticProbing::getBalance(std::string id) {
 }
 
 void QuadraticProbing::addTransaction(std::string id, int count) {
-    if (used >= threshold) resize();
     int index = hash(id);
-    for(int i = index, d = 1, n = -1; ; i = (index+((d*d + d)>>1))%capacity, d++){
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -83,7 +83,6 @@ void QuadraticProbing::addTransaction(std::string id, int count) {
             if(n == -1) {
                 bankStorage1d[i].id = id;
                 bankStorage1d[i].balance = count;
-                used++;
             } else {
                 bankStorage1d[n].id = id;
                 bankStorage1d[n].balance = count;
@@ -107,7 +106,8 @@ void QuadraticProbing::addTransaction(std::string id, int count) {
 
 bool QuadraticProbing::doesExist(std::string id) {
     int index = hash(id);
-    for(int i = index, d = 1, n = -1; ; i = (index+((d*d + d)>>1))%capacity, d++){
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             if(n == -1) n = i;
             continue;
@@ -130,7 +130,8 @@ bool QuadraticProbing::doesExist(std::string id) {
 
 bool QuadraticProbing::deleteAccount(std::string id) {
     int index = hash(id);
-    for(int i = index, d = 1, n = -1; ; i = (index+((d*d + d)>>1))%capacity, d++){
+    for(int i = index, n = -1, d = 1; ; i = (i+d)&262143, d++){
+        if(i > 172420) continue;
         if(bankStorage1d[i].id == "DELETED"){
             continue;
         }
@@ -152,28 +153,7 @@ int QuadraticProbing::databaseSize() {
 int QuadraticProbing::hash(std::string id) {
     int hash_value = 0;
     for (char c : id) {
-        hash_value = (hash_value*31 + c) % capacity;
+        hash_value = (hash_value*31 + c) % 172421;
     }
     return hash_value;
-}
-
-void QuadraticProbing::resize() {
-    /*capacity = 2*capacity + 1;
-    while (gcd(17, capacity) != 1) {
-        capacity++;
-    }*/
-    capacity = 200003;
-    threshold = static_cast<int>(capacity * loadFactor); 
-    std::vector<Account> temp;
-    for(int i = 0; i < bankStorage1d.size(); i++){
-        if(bankStorage1d[i].id != "" && bankStorage1d[i].id != "DELETED"){
-            temp.push_back(bankStorage1d[i]);
-        }
-    }
-    bankStorage1d.clear();
-    bankStorage1d.resize(capacity);
-    used = 0, size = 0;
-    for(int i = 0; i < temp.size(); i++){
-        createAccount(temp[i].id, temp[i].balance);
-    }
 }
