@@ -8,6 +8,7 @@
 #include "CubicProbing.h"
 #include "Comp.h"
 #include <chrono>
+#include <fstream>
 
 using namespace std;
 
@@ -21,7 +22,7 @@ void testChaining() {
     for (int i = 0; i < N; i++) {
         c.createAccount(keys[i], values[i]);
         int val = c.getBalance(keys[i]);
-        if (val != values[i]) cout<<("BRUH\n");
+        if (val != values[i]) cout<<("BRUH\n") << " " << val << " " << values[i] << "\n";
     }
 }
 
@@ -87,41 +88,41 @@ int main() {
         values[i] = dist(gen);
     }
 
-    auto chainingStart = chrono::high_resolution_clock::now();
-    testChaining();
-    auto chainingEnd = chrono::high_resolution_clock::now();
-    chrono::duration<double> chainingDuration = chainingEnd - chainingStart;
-    cout << "Chaining Time: " << chainingDuration.count() << " seconds\n";
-
-    auto linearStart = chrono::high_resolution_clock::now();
-    testLinearProbing();
-    auto linearEnd = chrono::high_resolution_clock::now();
-    chrono::duration<double> linearDuration = linearEnd - linearStart;
-    cout << "Linear Probing Time: " << linearDuration.count() << " seconds\n";
-
-    auto quadraticStart = chrono::high_resolution_clock::now();
-    testQuadraticProbing();
-    auto quadraticEnd = chrono::high_resolution_clock::now();
-    chrono::duration<double> quadraticDuration = quadraticEnd - quadraticStart;
-    cout << "Quadratic Probing Time: " << quadraticDuration.count() << " seconds\n";
-
-    auto cubicStart = chrono::high_resolution_clock::now();
-    testCubicProbing();
-    auto cubicEnd = chrono::high_resolution_clock::now();
-    chrono::duration<double> cubicDuration = cubicEnd - cubicStart;
-    cout << "Cubic Probing Time: " << cubicDuration.count() << " seconds\n";
-
-    auto compStart = chrono::high_resolution_clock::now();
-    testCompProbing();
-    auto compEnd = chrono::high_resolution_clock::now();
-    chrono::duration<double> compDuration = compEnd - compStart;
-    cout << "Comp Probing Time: " << compDuration.count() << " seconds\n";
-
     auto hashMapStart = chrono::high_resolution_clock::now();
     testHashMapSpeed();
     auto hashMapEnd = chrono::high_resolution_clock::now();
     chrono::duration<double> hashMapDuration = hashMapEnd - hashMapStart;
     cout << "HashMap Time: " << hashMapDuration.count() << " seconds\n";
+
+    auto chainingStart = chrono::high_resolution_clock::now();
+    testChaining();
+    auto chainingEnd = chrono::high_resolution_clock::now();
+    chrono::duration<double> chainingDuration = chainingEnd - chainingStart;
+    cout << "Chaining Time: " << chainingDuration.count() << " seconds " << chainingDuration.count()/hashMapDuration.count() << "\n";
+
+    auto linearStart = chrono::high_resolution_clock::now();
+    testLinearProbing();
+    auto linearEnd = chrono::high_resolution_clock::now();
+    chrono::duration<double> linearDuration = linearEnd - linearStart;
+    cout << "Linear Probing Time: " << linearDuration.count() << " seconds " << linearDuration.count()/hashMapDuration.count() << "\n";
+
+    auto quadraticStart = chrono::high_resolution_clock::now();
+    testQuadraticProbing();
+    auto quadraticEnd = chrono::high_resolution_clock::now();
+    chrono::duration<double> quadraticDuration = quadraticEnd - quadraticStart;
+    cout << "Quadratic Probing Time: " << quadraticDuration.count() << " seconds " << quadraticDuration.count()/hashMapDuration.count() << "\n";
+
+    auto cubicStart = chrono::high_resolution_clock::now();
+    testCubicProbing();
+    auto cubicEnd = chrono::high_resolution_clock::now();
+    chrono::duration<double> cubicDuration = cubicEnd - cubicStart;
+    cout << "Cubic Probing Time: " << cubicDuration.count() << " seconds " << cubicDuration.count()/hashMapDuration.count() << "\n";
+
+    auto compStart = chrono::high_resolution_clock::now();
+    testCompProbing();
+    auto compEnd = chrono::high_resolution_clock::now();
+    chrono::duration<double> compDuration = compEnd - compStart;
+    cout << "Comp Probing Time: " << compDuration.count() << " seconds " << compDuration.count()/hashMapDuration.count() << "\n";
 
     return 0;
 }
