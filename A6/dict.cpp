@@ -21,15 +21,19 @@ void Dict::insert_sentence(int book_code, int page, int paragraph, int sentence_
         }
         else if(w>='0' && w<='9'){
             index = w-'0'+26;
-        }
+        } 
         else{
-            string separators = " .,-:!\"\'()?—[]˙;@";
-            if(curr!=root && separators.find(w)!=string::npos){
+            auto it = rem.find(w);
+            if(it!=string::npos){
+                index = it+36;
+            } else {
+                if(curr!=root){
                 curr->isEndOfWord = true;
                 curr->count++;
                 curr = root;
+                }
+                continue;
             }
-            continue;
         }
         if(curr->children[index]==nullptr){
             curr->children[index] = new TrieNode();
@@ -56,7 +60,12 @@ int Dict::get_word_count(string word){
             index = w-'0'+26;
         }
         else{
-            return 0;
+            auto it = rem.find(w);
+            if(it!=string::npos){
+                index = it+36;
+            } else {
+                return 0;
+            }
         }
         if(curr->children[index]==nullptr){
             return 0;

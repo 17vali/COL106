@@ -12,31 +12,33 @@ public:
     int count;
 
     TrieNode(){
-        children = vector<TrieNode*>(36, nullptr);
+        children = vector<TrieNode*>(54, nullptr);
         isEndOfWord = false;
         count = 0;
     }
 
     ~TrieNode(){
-        for(int i=0;i<36;i++){
-            if(children[i]!=nullptr){
-                delete children[i];
-            }
-        }
-        delete this;
+        // for(int i=0;i<36;i++){
+        //     if(children[i]!=nullptr){
+        //         delete children[i];
+        //     }
+        // }
+        // delete this;
     }
 
     void dump(ofstream& file, string& word, int count){
         if(isEndOfWord){
             file<<word<<", "<<count<<endl;
         }
-        for(int i=0;i<36;i++){
+        for(int i=0;i<54;i++){
             if(children[i]!=nullptr){
                 if(i<26){
                     word.push_back('a'+i);
                 }
-                else{
+                else if(i<36){
                     word.push_back('0'+i-26);
+                } else {
+                    word.push_back("#$%&*+/<=>\\^_`{|}~"[i-36]);
                 }
                 children[i]->dump(file, word, children[i]->count);
                 word.pop_back();
@@ -48,6 +50,7 @@ public:
 class Dict {
 private:
     TrieNode* root;
+    string rem = "#$%&*+/<=>\\^_`{|}~";
 
 public: 
     /* Please do not touch the attributes and 
