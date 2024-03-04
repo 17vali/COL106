@@ -28,12 +28,15 @@ void Dict::insert_sentence(int book_code, int page, int paragraph, int sentence_
                 index = it+36;
             } else {
                 if(curr!=root){
-                curr->isEndOfWord = true;
-                curr->count++;
-                curr = root;
+                    curr->isEndOfWord = true;
+                    curr->count++;
+                    curr = root;
                 }
                 continue;
             }
+        }
+        if(index >= curr->children.size()) {
+            curr->children.resize(index+1, nullptr);
         }
         if(curr->children[index]==nullptr){
             curr->children[index] = new TrieNode();

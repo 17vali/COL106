@@ -6,7 +6,7 @@ bool char_match(char a, char b){
 }
 
 vector<int> bad_character_table(string pattern){
-    vector<int> table(69, -1); //
+    vector<int> table(69, -1);
     for(int i = 0; i < pattern.length(); i++){
         if(pattern[i] < 'A') {
             table[pattern[i] - 32] = i;
@@ -55,33 +55,91 @@ vector<int> good_suffix_table(string pattern){
     return table;
 }
 
-void boyer_moore(int book_code, int page, int paragraph, int sentence_no, string pattern, string text, Node* &head, int &n_matches){
-    vector<int> bad_char = bad_character_table(pattern);
-    vector<int> good_suff = good_suffix_table(pattern);
+void boyer_moore(int book_code, int page, int paragraph, int sentence_no, string pattern, string text, Node* &head, int &n_matches, vector<int> bad_char, vector<int> good_suff){
+    Node* l = nullptr;
+    Node* r = nullptr;
+
+    // int s = 0;
+    // int len = text.length() - pattern.length();
+    // while(s <= len){
+    //     int j = pattern.length() - 1;
+    //     while(j >= 0 && char_match(pattern[j], text[s + j])){
+    //         j--;
+    //     }
+    //     if(j < 0){
+    //         n_matches++;
+    //         Node* temp = new Node(book_code, page, paragraph, sentence_no, s);
+    //         if(l == nullptr){
+    //             l = temp;
+    //         } else {
+    //             r->right = temp;
+    //             temp->left = r;
+    //         }
+    //         r = temp;
+    //         s += good_suff[pattern.length()];
+    //     } else {
+    //         if(text[s+j] < 'A') {
+    //             s+= j - min(good_suff[j], bad_char[text[s + j] - 32]);
+    //         } else if(text[s+j] >= 'A' && text[s+j] <= 'Z') {
+    //             s+= j - min(good_suff[j], bad_char[text[s + j] - 26]);
+    //         } else {
+    //             s+= j - min(good_suff[j], bad_char[text[s + j] - 58]);
+    //         }
+    //     }
+    // }
 
     int s = 0;
+    int u = 0;
+    int shift = pattern.length();
     int len = text.length() - pattern.length();
     while(s <= len){
         int j = pattern.length() - 1;
         while(j >= 0 && char_match(pattern[j], text[s + j])){
             j--;
+            if(u != 0 && j == pattern.length() - 1 - shift){
+                j -= u;
+            }
         }
         if(j < 0){
             n_matches++;
             Node* temp = new Node(book_code, page, paragraph, sentence_no, s);
-            temp->right = head;
-            if(head!=nullptr) head->left = temp;
-            head = temp;
-            s += good_suff[pattern.length()];
-        } else {
-            if(text[s+j] < 'A') {
-                s+= j - min(good_suff[j], bad_char[text[s + j] - 32]);
-            } else if(text[s+j] >= 'A' && text[s+j] <= 'Z') {
-                s+= j - min(good_suff[j], bad_char[text[s + j] - 26]);
+            if(l == nullptr){
+                l = temp;
             } else {
-                s+= j - min(good_suff[j], bad_char[text[s + j] - 58]);
+                r->right = temp;
+                temp->left = r;
+            }
+            r = temp;
+            shift = good_suff[pattern.length()];
+            u = pattern.length() - shift;
+        } else {
+            int t_shift = u + j + 1 - pattern.length();
+            int bc_shift;
+            if(text[s+j] < 'A') {
+                bc_shift = j - bad_char[text[s + j] - 32];
+            } else if(text[s+j] >= 'A' && text[s+j] <= 'Z') {
+                bc_shift = j - bad_char[text[s + j] - 26];
+            } else {
+                bc_shift = j - bad_char[text[s + j] - 58];
+            }
+            shift = max(t_shift, bc_shift);
+            shift = max(shift, j - good_suff[j]);
+            if(shift == (j - good_suff[j])){
+                u = pattern.length() - max(shift, j + 1);
+            } else {
+                if(t_shift < bc_shift){
+                    shift = max(shift, u + 1);
+                }
+                u = 0;
             }
         }
+        s += shift;
+    }
+
+    if(r != nullptr){
+        r->right = head;
+        if(head!=nullptr) head->left = r;
+        head = l;
     }
 }
 
@@ -104,10 +162,13 @@ void SearchEngine::insert_sentence(int book_code, int page, int paragraph, int s
 }
 
 Node* SearchEngine::search(string pattern, int& n_matches){
+    vector<int> bad_char = bad_character_table(pattern);
+    vector<int> good_suff = good_suffix_table(pattern);
+
     Node* head = nullptr;
     Sentence* temp = sent_head;
     while(temp != nullptr){
-        boyer_moore(temp->book_code, temp->page, temp->paragraph, temp->sentence_no, pattern, temp->sent, head, n_matches);
+        boyer_moore(temp->book_code, temp->page, temp->paragraph, temp->sentence_no, pattern, temp->sent, head, n_matches, bad_char, good_suff);
         temp = temp->next;
     }
     return head;
